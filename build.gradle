@@ -18,8 +18,9 @@ repositories {
 dependencies {
 
     implementation 'io.github.lambig:functional-interface-extension:1.1.2'
-    implementation 'io.github.lambig:toolbox-java:1.2.0'
     implementation 'io.github.lambig:Tuplite:1.0.0'
+    implementation "io.github.lambig:Patterns:1.2.1"
+    implementation "io.github.lambig:Union:0.1.0"
 
 }
 
