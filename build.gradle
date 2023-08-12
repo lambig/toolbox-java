@@ -1,0 +1,102 @@
+plugins {
+    id 'java-library'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group = 'io.github.lambig'
+archivesBaseName = 'toolbox-java'
+version = '0.1.0'
+
+sourceCompatibility = 1.11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    implementation 'io.github.lambig:functional-interface-extension:1.1.2'
+    implementation 'io.github.lambig:toolbox-java:1.2.0'
+    implementation 'io.github.lambig:Tuplite:1.0.0'
+
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+}
+
+tasks.register('javadocJar', Jar) {
+    dependsOn classes
+    archiveClassifier.set('javadoc')
+    from sourceSets.main.output
+}
+
+tasks.register('sourcesJar', Jar) {
+    dependsOn classes
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'toolbox-java'
+            from components.java
+            pom {
+                name = 'toolbox-java'
+                description = 'Bundle of my libraries for Java.'
+                url = 'https://github.com/lambig/toolbox-java'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'lambig'
+                        name = 'Lambig'
+                        email = 'ceolnua51@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/lambig/toolbox-java'
+                    url = 'https://github.com/lambig/toolbox-java'
+                }
+            }
+        }
+    }
+    repositories {
+//        maven {
+//            name = "OSSRH"
+//            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+//            credentials {
+//                username = ossrhUsername
+//                password = ossrhPassword
+//            }
+//        }
+//        maven {
+//            name = "OSSRH_SNAPSHOT"
+//            url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+//            credentials {
+//                username = ossrhUsername
+//                password = ossrhPassword
+//            }
+//        }
+    }
+
+    signing {
+        sign publishing.publications.mavenJava
+    }
+}
