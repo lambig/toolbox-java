@@ -1,5 +1,5 @@
 # toolbox-java
-Bundle of my libraries for Java.
+Bundle of my libraries for Java.  
 https://central.sonatype.com/artifact/io.github.lambig/toolbox-java/
 
 
