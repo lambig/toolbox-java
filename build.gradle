@@ -7,7 +7,7 @@ plugins {
 
 group = 'io.github.lambig'
 archivesBaseName = 'toolbox-java'
-version = '0.1.2'
+version = '0.2.0'
 
 sourceCompatibility = 1.11
 
@@ -21,6 +21,7 @@ dependencies {
     implementation 'io.github.lambig:Tuplite:1.0.0'
     implementation "io.github.lambig:Patterns:1.2.1"
     implementation "io.github.lambig:Union:0.1.0"
+    implementation "io.github.lambig:TextEscape:0.1.0"
 
 }
 
@@ -91,7 +92,7 @@ publishing {
             }
         }
     }
-//    repositories {
+    repositories {
 //        maven {
 //            name = "OSSRH"
 //            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
