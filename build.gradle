@@ -7,7 +7,7 @@ plugins {
 
 group = 'io.github.lambig'
 archivesBaseName = 'toolbox-java'
-version = '0.1.0'
+version = '0.1.2'
 
 sourceCompatibility = 1.11
 
@@ -49,11 +49,24 @@ java {
     withSourcesJar()
 }
 
+shadowJar {
+    archiveClassifier.set('')
+}
+
+sourcesJar {
+    archiveClassifier.set('sources')
+}
+
+
+publish.dependsOn shadowJar
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
             artifactId = 'toolbox-java'
-            from components.java
+            artifact sourcesJar
+            artifact shadowJar
+            artifact javadocJar
             pom {
                 name = 'toolbox-java'
                 description = 'Bundle of my libraries for Java.'
@@ -78,7 +91,7 @@ publishing {
             }
         }
     }
-    repositories {
+//    repositories {
 //        maven {
 //            name = "OSSRH"
 //            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
