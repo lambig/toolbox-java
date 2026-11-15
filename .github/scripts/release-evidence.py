@@ -25,8 +25,10 @@ if mode == 'prepare':
     assert not subprocess.check_output(['git', 'status', '--porcelain'], text=True).strip(), 'Release source must be clean'
     bundle = Path(filename)
     with ZipFile(bundle) as z:
-        assert all(prefix + n in z.namelist() for n in names), 'Incomplete signed bundle'
-        assert all(n.startswith(prefix) for n in z.namelist()), 'Unexpected bundle coordinates'
+        # Gradle includes parent directories such as io/ outside the artifact prefix.
+        files = {entry.filename for entry in z.infolist() if not entry.is_dir()}
+        assert all(prefix + n in files for n in names), 'Incomplete signed bundle'
+        assert all(n.startswith(prefix) for n in files), 'Unexpected bundle coordinates'
         digests = {n: hashlib.sha256(z.read(prefix + n)).hexdigest() for n in sorted(names)}
     manifest_path.write_text(json.dumps({'version': version, 'sourceCommit': head, 'bundleSha256': hashlib.sha256(bundle.read_bytes()).hexdigest(), 'sha256': digests}, indent=2) + '\n')
     print(manifest_path)
