@@ -1,4 +1,9 @@
-"""Prepare expected public hashes from the signed bundle, or verify the published bytes."""
+"""Record bundle hashes or compare published bytes with the supplied manifest.
+
+The operator must establish the bundle's source and verify its signatures.
+sourceCommit records the checkout used by prepare; it is not build provenance.
+verify does not consume the bundle, recheck bundleSha256, or authenticate .asc files.
+"""
 import hashlib
 import json
 from pathlib import Path
@@ -36,6 +41,7 @@ elif mode == 'verify':
         assert hashlib.sha256(data).hexdigest() == manifest['sha256'][name], name
         (target / name).write_bytes(data)
     manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
-    print(f'Public {version}: ten artifact/signature hashes match signed bundle; source {head}')
+    print(f'Public {version}: ten artifact/signature file hashes match manifest; checkout matches recorded sourceCommit {head}')
+    print('Bundle origin, bundleSha256, and signature authenticity are not verified by this command.')
 else:
     raise SystemExit('Usage: release-evidence.py prepare|verify VERSION BUNDLE_OR_MANIFEST')

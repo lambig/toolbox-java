@@ -38,11 +38,21 @@ sh ./verify-consumers.sh public 0.4.0
 
 候補版CIは公開物の同一性を保証しません。公開担当者は次の手順で公開先の実物とソースの版を対応付けます。push・タグ・Release・認証操作は適用される承認の範囲で行います。
 
+### 検査が確認する範囲
+
+`prepare`は指定されたbundleの10ファイルのハッシュ、bundle全体の`bundleSha256`、実行時checkoutのHEADを`sourceCommit`へ記録します。cleanであることは検査しますが、bundleがそのHEADから生成されたことは検査しません。同じ版・座標の別コミット由来bundleも受け付けるため、`sourceCommit`は公開担当者が確認する生成元の記録であり、機械的な来歴証明ではありません。
+
+`verify`は公開先10ファイルのバイト列がmanifestの期待ハッシュと一致すること、およびcheckoutのHEADが記録された`sourceCommit`と一致することを確認します。元のbundleを受け取らず、`bundleSha256`を再照合しません。`.asc`もバイト比較の対象であり、署名の暗号学的な検証や署名者の確認は行いません。manifestが正しく作成・保管されていることを前提とする比較で、ソースからの生成、署名の真正性、manifest自体の真正性を証明するものではありません。
+
+生成元の確認は公開担当者の手順に依存します。対象checkoutでのbuildログ・SHA・bundleハッシュを関連付けて保管し、持ち込まれた同版bundleで置き換わっていないことと、期待する署名鍵による署名を公開前に別途確認してください。attestationや再現可能buildとの比較による生成元の機械的証明は、この手順には含みません。
+
+### 実行手順
+
 1. レビュー済みの公開対象コミットをcleanなcheckoutへ固定し、`library-versions.properties`、README、候補版検証が同じ版を指すことを確認します。署名鍵は環境から受け取り、リポジトリには保存しません。
 2. `SIGNING_KEY`と`SIGNING_PASSWORD`を設定し、`sh ./gradlew clean check -PreleaseBundle centralBundle`で署名付きbundleを作成します。公開前に内容・署名・秘密情報の混入がないことを確認します。
-3. `python3 .github/scripts/release-evidence.py prepare 0.4.0 build/central/toolbox-java-0.4.0-central.zip`で公開元SHAと10成果物の期待ハッシュを保存します。生成先は`build/release-evidence/artifact-checksums.json`です。検証済みbundleをCentralへ登録し、公開完了を確認します。
+3. `python3 .github/scripts/release-evidence.py prepare 0.4.0 build/central/toolbox-java-0.4.0-central.zip`でcheckoutのSHAと10成果物の期待ハッシュを保存します。生成先は`build/release-evidence/artifact-checksums.json`です。公開担当者が生成元と署名を確認したbundleをCentralへ登録し、公開完了を確認します。
 4. 同じコミットを指す`v0.4.0`タグとGitHub Releaseへ、manifestと公開検証のログを関連付けます。タグが未作成の間もコミットSHAを明示します。公開版に関するソース・文書の案内には、そのタグまたはSHAへの固定リンクを使います。
 5. `python3 .github/scripts/release-evidence.py verify 0.4.0 build/release-evidence/artifact-checksums.json`で公開先10ファイルを照合し、`python3 .github/scripts/check-artifacts.py build/public-repository 0.4.0`とpublicモードのconsumerをJava 11／25で実行します。
 6. 再実行可能な`Verify public release`ワークフローを版番号付きで実行します。版タグからソースを取得し、同じReleaseのmanifestと公開物を照合して、両Javaのconsumer結果を保存します。Releaseに実行URLを記録し、CI artifactの保存期限内に必要なログをReleaseへ保管します。認証値や非公開情報をログへ含めません。
 
-READMEは版一覧とリリース記録を案内します。同じ「公開済み」表記のためだけに独立した文書PRを必須にせず、必要な文書同期を公開手順へ含めます。文書PRを公開済み成果物の承認ゲートにせず、toolboxを利用する後続の回帰・Skeleton受け入れも独立して進めます。
+READMEは版一覧とリリース記録を案内します。同じ「公開済み」表記のためだけに独立した文書PRを必須にせず、必要な文書同期を公開手順へ含めます。文書PRを公開済み成果物の承認ゲートにせず、利用側で独立して進められる回帰・受け入れ作業を止めません。

@@ -86,8 +86,8 @@ Maven／Gradleでの実行方法は[DEVELOPING.md](DEVELOPING.md)を参照して
 
 toolboxのsources JARには構成・導入文書・build定義、Javadoc JARには版付きAPI成果物への案内を格納します。各libraryのJavaソースやAPI本文は各artifactのsources／Javadoc JARを取得してください。
 
-## 設計規則とSkeleton
+## 任意の設計規則
 
 [ab-architecture-rules](https://github.com/lambig/ab-architecture-rules)はABの設計方針を採用する場合にだけ、利用側がテスト依存として追加する任意の検査です。toolboxの標準依存には含みません。[Harnessの導入手順](https://github.com/lambig/ab-architecture-rules#readme)を参照し、検査対象と規則を設定してください。
 
-Skeletonからtoolboxを使う一連の導入・更新の受け入れは[ABService #248](https://github.com/lambig/ABService/issues/248)で追跡しています。ここでの独立例の成功だけでは、その全体受け入れを完了としません。不具合・質問は[Issues](https://github.com/lambig/toolbox-java/issues)へお願いします。
+不具合・質問は[Issues](https://github.com/lambig/toolbox-java/issues)へお願いします。
