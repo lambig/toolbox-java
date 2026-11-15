@@ -1,0 +1,62 @@
+name: Verify public release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Published version with a matching vVERSION tag and Release manifest
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  public:
+    name: Public release on Java ${{ matrix.java }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ['11', '25']
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+    steps:
+      - name: Validate version
+        run: '[[ "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]'
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: v${{ inputs.version }}
+          persist-credentials: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      - name: Select test runtime
+        run: echo "TEST_JAVA_HOME=$JAVA_HOME" >> "$GITHUB_ENV"
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify public bytes and consumers
+        shell: bash
+        run: |
+          mkdir -p build/release-evidence
+          curl --fail --location --silent --show-error \
+            "https://github.com/lambig/toolbox-java/releases/download/v${RELEASE_VERSION}/artifact-checksums.json" \
+            --output build/release-evidence/expected.json
+          python3 .github/scripts/release-evidence.py verify "$RELEASE_VERSION" build/release-evidence/expected.json \
+            | tee build/release-evidence/public-bytes.log
+          python3 .github/scripts/check-artifacts.py build/public-repository "$RELEASE_VERSION" \
+            | tee build/release-evidence/metadata.log
+          sh ./verify-consumers.sh public "$RELEASE_VERSION"
+      - name: Preserve release evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: public-${{ inputs.version }}-java-${{ matrix.java }}
+          retention-days: 90
+          path: |
+            build/release-evidence/
+            build/consumer-results/public/
