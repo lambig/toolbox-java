@@ -1,76 +1,41 @@
 plugins {
     id 'java-library'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'maven-publish'
     id 'signing'
 }
 
 group = 'io.github.lambig'
-archivesBaseName = 'toolbox-java'
-version = '0.3.1'
+version = '0.4.0'
+def toolboxVersion = version.toString()
 
-sourceCompatibility = 1.11
+repositories { mavenCentral() }
 
-repositories {
-    mavenCentral()
-}
-
+def libraryVersions = new Properties()
+file('library-versions.properties').withInputStream { libraryVersions.load(it) }
 dependencies {
-
-    implementation 'io.github.lambig:functional-interface-extension:1.1.2'
-    implementation 'io.github.lambig:Tuplite:1.0.0'
-    implementation "io.github.lambig:Patterns:1.3.1"
-    implementation "io.github.lambig:Union:0.1.0"
-    implementation "io.github.lambig:TextEscape:0.1.0"
-
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = "UTF-8"
-}
-
-tasks.register('javadocJar', Jar) {
-    dependsOn classes
-    archiveClassifier.set('javadoc')
-    from sourceSets.main.output
-}
-
-tasks.register('sourcesJar', Jar) {
-    dependsOn classes
-    archiveClassifier.set('sources')
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives javadocJar, sourcesJar
+    libraryVersions.each { artifact, release -> api "io.github.lambig:$artifact:$release" }
 }
 
 java {
-    withJavadocJar()
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
     withSourcesJar()
+    withJavadocJar()
 }
-
-shadowJar {
-    archiveClassifier.set('')
+tasks.withType(JavaCompile).configureEach {
+    options.release = 11
+    options.encoding = 'UTF-8'
 }
-
-sourcesJar {
-    archiveClassifier.set('sources')
-}
-
-
-publish.dependsOn shadowJar
+tasks.withType(Javadoc).configureEach { options.encoding = 'UTF-8' }
+tasks.withType(Jar).configureEach { from('LICENSE') { into 'META-INF' } }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId = 'toolbox-java'
-            artifact sourcesJar
-            artifact shadowJar
-            artifact javadocJar
+            from components.java
             pom {
                 name = 'toolbox-java'
-                description = 'Bundle of my libraries for Java.'
+                description = 'Dependency entry point for five Java utility libraries.'
                 url = 'https://github.com/lambig/toolbox-java'
                 licenses {
                     license {
@@ -78,32 +43,76 @@ publishing {
                         url = 'https://opensource.org/licenses/MIT'
                     }
                 }
-                developers {
-                    developer {
-                        id = 'lambig'
-                        name = 'Lambig'
-                        email = 'ceolnua51@gmail.com'
-                    }
-                }
+                developers { developer { id = 'lambig'; name = 'Lambig' } }
                 scm {
-                    connection = 'scm:git:https://github.com/lambig/toolbox-java'
+                    connection = 'scm:git:https://github.com/lambig/toolbox-java.git'
+                    developerConnection = 'scm:git:ssh://git@github.com/lambig/toolbox-java.git'
                     url = 'https://github.com/lambig/toolbox-java'
                 }
             }
         }
     }
     repositories {
-//        maven {
-//            name = "OSSRH"
-//            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-//            credentials {
-//                username = ossrhUsername
-//                password = ossrhPassword
-//            }
-//        }
+        maven {
+            name = 'Candidate'
+            url = layout.buildDirectory.dir('repository')
+        }
     }
+}
 
-    signing {
+// 署名鍵は公開用bundleの生成時だけ環境から受け取る。
+def releaseBundle = providers.gradleProperty('releaseBundle').isPresent()
+signing {
+    required = releaseBundle
+    if (releaseBundle) {
+        if (providers.environmentVariable('SIGNING_KEY').isPresent()) {
+            useInMemoryPgpKeys(providers.environmentVariable('SIGNING_KEY').get(),
+                    providers.environmentVariable('SIGNING_PASSWORD').orNull)
+        }
         sign publishing.publications.mavenJava
     }
 }
+
+tasks.register('centralBundle', Zip) {
+    dependsOn 'publishMavenJavaPublicationToCandidateRepository'
+    archiveFileName = "toolbox-java-${toolboxVersion}-central.zip"
+    destinationDirectory = layout.buildDirectory.dir('central')
+    from(layout.buildDirectory.dir('repository')) {
+        include "io/github/lambig/toolbox-java/${toolboxVersion}/*.jar*"
+        include "io/github/lambig/toolbox-java/${toolboxVersion}/*.pom*"
+        include "io/github/lambig/toolbox-java/${toolboxVersion}/*.module*"
+    }
+    doFirst {
+        if (!releaseBundle) throw new GradleException('centralBundle requires -PreleaseBundle and signing credentials')
+        ['.jar', '-sources.jar', '-javadoc.jar', '.pom', '.module'].each { suffix ->
+            def signature = layout.buildDirectory.file("repository/io/github/lambig/toolbox-java/${toolboxVersion}/toolbox-java-${toolboxVersion}${suffix}.asc").get().asFile
+            if (!signature.isFile()) throw new GradleException("Missing signature: ${signature.name}")
+        }
+    }
+}
+
+
+tasks.named('jar') { from('library-versions.properties') { into 'META-INF' } }
+// toolbox owns dependency metadata; Java sources and API contracts remain with each library.
+tasks.named('sourcesJar') { from('README.md', 'DEVELOPING.md', 'library-versions.properties', 'build.gradle') }
+def guideDirectory = layout.buildDirectory.dir('dependency-guide')
+tasks.register('dependencyGuide') {
+    inputs.file('library-versions.properties')
+    inputs.property('version', toolboxVersion)
+    outputs.dir(guideDirectory)
+    doLast {
+        def rows = libraryVersions.keySet().sort().collect { artifact ->
+            def release = libraryVersions[artifact]
+            def base = "https://repo.maven.apache.org/maven2/io/github/lambig/$artifact/$release/$artifact-$release"
+            "<li>$artifact $release: <a href='$base-sources.jar'>sources</a> / <a href='$base-javadoc.jar'>Javadoc</a></li>"
+        }.join('\n')
+        def directory = guideDirectory.get().asFile
+        directory.mkdirs()
+        new File(directory, 'index.html').setText("""<!doctype html>
+<html lang="ja"><meta charset="UTF-8"><title>toolbox-java $toolboxVersion</title>
+<h1>toolbox-java $toolboxVersion</h1>
+<p>toolboxは依存情報の入口です。独自の公開Javaクラスはありません。
+ソースとAPI契約は、以下の版付き成果物を参照してください。</p><ul>$rows</ul></html>""", 'UTF-8')
+    }
+}
+tasks.named('javadocJar') { dependsOn 'dependencyGuide'; from(guideDirectory) }
