@@ -65,6 +65,15 @@ class ReleaseEvidenceTest(unittest.TestCase):
         with self.assertRaisesRegex(AssertionError, 'clean'):
             self.invoke('prepare', 'bundle.zip', dirty=True)
 
+    def test_gradle_parent_directory_entries_are_accepted(self):
+        with ZipFile('bundle.zip', 'a') as z:
+            for directory in ['io/', 'io/github/', 'io/github/lambig/',
+                              'io/github/lambig/toolbox-java/', PREFIX]:
+                z.writestr(directory, b'')
+        manifest = self.prepare()
+        self.invoke('verify', manifest)
+        self.assertEqual(set(json.loads(Path(manifest).read_text())['sha256']), NAMES)
+
     def test_missing_signature_is_rejected(self):
         self.bundle(omit=f'toolbox-java-{VERSION}.pom.asc')
         with self.assertRaisesRegex(AssertionError, 'Incomplete'):
