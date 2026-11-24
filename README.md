@@ -28,13 +28,13 @@ implementation 'io.github.lambig:toolbox-java:0.4.0'
 
 | ライブラリ | 選定版 | 用途 | 版付きソース・API文書 |
 | --- | --- | --- | --- |
-| [functional-interface-extension](https://github.com/lambig/functional-interface-extension/blob/51bce97e473edf056a767a362d4d18d46efe5999/README.md) | 1.1.3 | 関数合成・述語・命題 | [sources](https://repo.maven.apache.org/maven2/io/github/lambig/functional-interface-extension/1.1.3/functional-interface-extension-1.1.3-sources.jar) / [API](https://repo.maven.apache.org/maven2/io/github/lambig/functional-interface-extension/1.1.3/functional-interface-extension-1.1.3-javadoc.jar) |
-| [Tuplite](https://github.com/lambig/Tuplite/blob/9eae0778f88280924996a8d5f7551827ff78c0f2/README.md) | 1.0.1 | 2値・3値の組と変換 | [sources](https://repo.maven.apache.org/maven2/io/github/lambig/Tuplite/1.0.1/Tuplite-1.0.1-sources.jar) / [API](https://repo.maven.apache.org/maven2/io/github/lambig/Tuplite/1.0.1/Tuplite-1.0.1-javadoc.jar) |
-| [Patterns](https://github.com/lambig/Patterns/blob/5ba5e220d2b735843e865a1480f9793ff19404f4/README.md) | 1.3.2 | 条件の順序に沿う分類と処理 | [sources](https://repo.maven.apache.org/maven2/io/github/lambig/Patterns/1.3.2/Patterns-1.3.2-sources.jar) / [API](https://repo.maven.apache.org/maven2/io/github/lambig/Patterns/1.3.2/Patterns-1.3.2-javadoc.jar) |
-| [Union](https://github.com/lambig/Union/blob/e57c7b3ce10b2bc3ec78931feefba08972a2dba1/README.md) | 0.1.1 | 左右どちらか一つの値と合流 | [sources](https://repo.maven.apache.org/maven2/io/github/lambig/Union/0.1.1/Union-0.1.1-sources.jar) / [API](https://repo.maven.apache.org/maven2/io/github/lambig/Union/0.1.1/Union-0.1.1-javadoc.jar) |
-| [TextEscape](https://github.com/lambig/TextEscape/blob/745b211a692a8e4e099a0161f2584a3afe660b9c/README.md) | 0.1.1 | 名前付きトークンの文字列置換 | [sources](https://repo.maven.apache.org/maven2/io/github/lambig/TextEscape/0.1.1/TextEscape-0.1.1-sources.jar) / [API](https://repo.maven.apache.org/maven2/io/github/lambig/TextEscape/0.1.1/TextEscape-0.1.1-javadoc.jar) |
+| [functional-interface-extension](https://github.com/lambig/functional-interface-extension#readme) | 1.1.3 | 関数合成・述語・命題 | [sources](https://repo.maven.apache.org/maven2/io/github/lambig/functional-interface-extension/1.1.3/functional-interface-extension-1.1.3-sources.jar) / [API](https://repo.maven.apache.org/maven2/io/github/lambig/functional-interface-extension/1.1.3/functional-interface-extension-1.1.3-javadoc.jar) |
+| [Tuplite](https://github.com/lambig/Tuplite#readme) | 1.0.1 | 2値・3値の組と変換 | [sources](https://repo.maven.apache.org/maven2/io/github/lambig/Tuplite/1.0.1/Tuplite-1.0.1-sources.jar) / [API](https://repo.maven.apache.org/maven2/io/github/lambig/Tuplite/1.0.1/Tuplite-1.0.1-javadoc.jar) |
+| [Patterns](https://github.com/lambig/Patterns#readme) | 1.3.2 | 条件の順序に沿う分類と処理 | [sources](https://repo.maven.apache.org/maven2/io/github/lambig/Patterns/1.3.2/Patterns-1.3.2-sources.jar) / [API](https://repo.maven.apache.org/maven2/io/github/lambig/Patterns/1.3.2/Patterns-1.3.2-javadoc.jar) |
+| [Union](https://github.com/lambig/Union#readme) | 0.1.1 | 左右どちらか一つの値と合流 | [sources](https://repo.maven.apache.org/maven2/io/github/lambig/Union/0.1.1/Union-0.1.1-sources.jar) / [API](https://repo.maven.apache.org/maven2/io/github/lambig/Union/0.1.1/Union-0.1.1-javadoc.jar) |
+| [TextEscape](https://github.com/lambig/TextEscape#readme) | 0.1.1 | 名前付きトークンの文字列置換 | [sources](https://repo.maven.apache.org/maven2/io/github/lambig/TextEscape/0.1.1/TextEscape-0.1.1-sources.jar) / [API](https://repo.maven.apache.org/maven2/io/github/lambig/TextEscape/0.1.1/TextEscape-0.1.1-javadoc.jar) |
 
-API Javadoc JARを展開し、index.htmlを開いてください。表のライブラリ名から、固定した版の導入ガイドと更新説明にも進めます。FIEとUnionのガイドには候補版表記が残るため、公開版の確認には表の成果物リンクを使ってください。公開版の正確なAPIとソースは上の版付き成果物を参照してください。値のnull可否・例外・短絡評価などの契約をtoolbox側で変更しません。
+API Javadoc JARを展開し、index.htmlを開いてください。表のライブラリ名から、各所有元の最新の利用案内へ進めます。そのREADMEが案内する版とtoolboxの選定版は異なる場合があります。選定版の正確なAPIとソースは上の版付き成果物を参照してください。値のnull可否・例外・短絡評価などの契約をtoolbox側で変更しません。
 
 必要な機能が一つだけなら個別artifactを直接宣言できます。toolboxと選定した同じ版の個別artifactを併用しても、同じ座標のJARは一つだけ解決されます。異なる版を明示した場合の最終選択はMaven／Gradleの依存解決に従い、ここに示した組合せ以外は別途検証してください。BOMのような強制的な版統制は行いません。
 
@@ -80,7 +80,7 @@ Maven／Gradleでの実行方法は[DEVELOPING.md](DEVELOPING.md)を参照して
 
 ## 0.3.1からの更新
 
-0.3.1のクラス同梱方式から、0.4.0ではPOM／Gradle Module Metadataの推移依存で5ライブラリを解決する方式へ変更します。toolboxのJAR単体を手動コピーする運用ではクラスが不足するため、Maven／Gradleが解決した依存JAR一式を実行時に含めてください。旧版へ戻す場合はtoolboxと個別artifactの指定を見直し、同梱JARと個別JARを混在させないでください。
+0.3.1のクラス同梱方式から、0.4.0ではPOM／Gradle Module Metadataの推移依存で5ライブラリを解決する方式へ変更します。toolboxのJAR単体を手動コピーする運用ではクラスが不足するため、Maven／Gradleが解決した依存JAR一式を実行時に含めてください。旧版へ戻す場合の版の組合せと確認方法は[更新・復帰](DEVELOPING.md#更新復帰)を参照してください。
 
 ライブラリのパッケージ名は維持し、Lombokや検査用ライブラリをruntimeへ含めません。旧0.3.1でコンパイルした上の例を新しい依存構成でも実行して検証します。これは代表例のbinary互換性であり、全入力の動作一致ではありません。TextEscapeの特殊文字・既定値処理など、各libraryで修正した旧動作は変わります。
 
